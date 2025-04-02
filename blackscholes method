@@ -1,0 +1,44 @@
+import math
+from scipy.stats import norm
+
+# Black-Scholes formula for a European call and put option
+def black_scholes(S, K, T, r, sigma, option_type='call'):
+    """
+    S : float : Current stock price
+    K : float : Strike price
+    T : float : Time to expiration in years
+    r : float : Risk-free interest rate (annualized)
+    sigma : float : Volatility of the underlying asset (annualized)
+    option_type : str : 'call' or 'put', type of option (default is 'call')
+    
+    Returns:
+    float : Option price
+    """
+    # Calculate d1 and d2
+    d1 = (math.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * math.sqrt(T))
+    d2 = d1 - sigma * math.sqrt(T)
+    
+    # Calculate the option price based on type
+    if option_type == 'call':
+        option_price = (S * norm.cdf(d1)) - (K * math.exp(-r * T) * norm.cdf(d2))
+    elif option_type == 'put':
+        option_price = (K * math.exp(-r * T) * norm.cdf(-d2)) - (S * norm.cdf(-d1))
+    else:
+        raise ValueError("Invalid option type. Must be 'call' or 'put'.")
+    
+    return option_price
+
+# Example usage
+S = 100   # Stock price
+K = 95    # Strike price
+T = 1     # Time to expiration (1 year)
+r = 0.05  # Risk-free rate (5%)
+sigma = 0.2  # Volatility (20%)
+
+# Calculate the price of a call option
+call_price = black_scholes(S, K, T, r, sigma, option_type='call')
+print(f"Call Option Price: {call_price:.2f}")
+
+# Calculate the price of a put option
+put_price = black_scholes(S, K, T, r, sigma, option_type='put')
+print(f"Put Option Price: {put_price:.2f}")
